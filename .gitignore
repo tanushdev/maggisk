@@ -35,3 +35,9 @@ desktop.ini
 *.sql
 .env
 node_modules
+
+node_modules
+.env
+*.sql
+*.log
+*.txt
