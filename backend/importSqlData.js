@@ -10,7 +10,7 @@ const connectDB = require("./config/db");
 
 dotenv.config();
 
-const SQL_FILE_PATH = path.join(__dirname, "../u615986106_G6HdH (1).sql");
+const SQL_FILE_PATH = path.join(__dirname, "");
 
 connectDB();
 
@@ -74,7 +74,7 @@ const parseSql = async () => {
       blocks.forEach((block) => {
         // Clean leading/trailing parentheses and semicolon, THEN trim
         const cleanBlock = block.replace(/^\(|\);?$/g, "").trim();
-        
+
         // Match the ID and Post ID (first two numbers)
         const idMatches = cleanBlock.match(/^(\d+),\s*(\d+)/);
         if (!idMatches) return;
