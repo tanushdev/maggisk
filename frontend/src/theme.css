@@ -1,0 +1,165 @@
+
+/* Marquee Styles */
+.marquee {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+    padding: 10px 0;
+}
+
+.marquee p {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 20s linear infinite;
+    margin: 0;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+/* Site Wrapper */
+.lakit-site-wrapper {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Elementor Grid Simulation */
+.e-con-full {
+    display: flex;
+    width: 100%;
+}
+
+.e-con-boxed {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.e-con-inner {
+    display: flex;
+    width: 100%;
+    padding: 0 15px;
+}
+
+.e-flex {
+    display: flex;
+}
+
+/* Header Styles */
+header.elementor-location-header {
+    width: 100%;
+    z-index: 100;
+    background: #fff;
+}
+
+.header-user-link {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Logo */
+.elementor-widget-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Menu */
+.e-n-menu {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.e-n-menu-item {
+    padding: 15px 20px;
+}
+
+.e-n-menu-title-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 14px;
+    color: #000;
+    text-decoration: none;
+}
+
+/* Slider / Carousel */
+.lakit-carousel {
+    position: relative;
+    overflow: hidden;
+}
+
+.swiper-container {
+    width: 100%;
+    height: 100%;
+}
+
+.swiper-slide {
+    background-position: center;
+    background-size: cover;
+}
+
+/* Section Widths */
+[data-id] {
+    --lakit-section-width: 100%;
+}
+
+/* Lazy Loaded items */
+.e-lazyloaded {
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+/* Additional layout tokens */
+:root {
+    /* Colors from screenshots */
+    --theme-rust-brown: #a66a4a; /* Announcement bar & accents */
+    --theme-header-bg: #fffbf6;  /* Header background */
+    --theme-logo-coral: #e27d60; /* Logo box color */
+    --theme-text-dark: #222222;  /* Primary text */
+    --theme-text-light: #666666; /* Secondary text */
+    
+    /* Fonts */
+    --font-serif: "Cormorant Garamond", serif; /* Or Playfair Display */
+    --font-sans: "Inter", sans-serif;
+}
+
+body {
+    font-family: var(--font-sans);
+    color: var(--theme-text-dark);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-serif {
+    font-family: var(--font-serif);
+    font-weight: 400;
+}
+
+/* Updated Marquee Style */
+.marquee-container {
+    background: var(--theme-rust-brown);
+    color: #fff;
+    padding: 8px 0;
+}
+
+.marquee-content {
+    animation: scroll-marquee 30s linear infinite;
+    display: inline-block;
+    padding-left: 20px;
+}
+
+@keyframes scroll-marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
