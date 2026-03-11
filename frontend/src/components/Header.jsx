@@ -67,7 +67,7 @@ const Header = () => {
           {/* Desktop Navigation - Centered vertically */}
           <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             <Link to="/" className="text-[16px] font-medium text-[#bda689] transition-colors">Home</Link>
-            <Link to="/about" className="text-[16px] font-medium text-gray-700 hover:text-[#bda689] transition-colors">About Us</Link>
+            <Link to="/about-us" className="text-[16px] font-medium text-gray-700 hover:text-[#bda689] transition-colors">About Us</Link>
 
             <div className="relative group flex items-center h-full">
               <button className="flex items-center gap-1 text-[16px] font-medium text-gray-700 hover:text-[#bda689] transition-colors">

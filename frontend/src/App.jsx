@@ -21,6 +21,7 @@ const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
 const PhonePeConfig = lazy(() => import('./pages/Admin/PhonePeConfig'));
+const AboutUs = lazy(() => import('./pages/AboutUs'));
 
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -53,6 +54,7 @@ function App() {
                   <Route path="/category/:slug" element={<CategoryPage type="category" />} />
                   <Route path="/stone/:slug" element={<CategoryPage type="stone" />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/about-us" element={<AboutUs />} />
                   <Route path="/order/:id/success" element={<OrderSuccess />} />
                   
                   {/* Admin Routes */}
