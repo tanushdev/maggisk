@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const slides = [
   {
-    image: 'https://maggikstones.com/wp-content/uploads/2025/09/27773.jpg',
+    image: '/images/hero-1.jpg',
     title: 'TRANSFORMING',
     line2: 'SPACES WITH',
     line3: 'TIMELESS STONES',

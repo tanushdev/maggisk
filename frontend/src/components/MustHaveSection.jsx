@@ -96,7 +96,7 @@ const MustHaveSection = () => {
                          {product.images?.[0] ? (
                            <img 
                             src={product.images[0]} 
-                            alt={product.name}
+                            alt={product.title}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                            />
                          ) : (
@@ -104,7 +104,7 @@ const MustHaveSection = () => {
                          )}
                       </div>
                       <h4 className="text-white text-[13px] md:text-sm font-semibold tracking-wide leading-snug drop-shadow-sm line-clamp-2 transition-colors group-hover:text-amber-100">
-                        {product.name}
+                        {product.title}
                       </h4>
                       <p className="text-white/90 text-[13px] md:text-sm mt-2 font-medium">
                         ₹{product.price.toFixed(2)}

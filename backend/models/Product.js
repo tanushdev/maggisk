@@ -16,62 +16,21 @@ const reviewSchema = mongoose.Schema(
 
 const productSchema = mongoose.Schema(
   {
-    name: { type: String, required: true },
+    title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    sku: { type: String, default: '' },
-    type: { type: String, default: 'simple' }, // simple, variable, etc.
-    description: { type: String, default: '' },
-    shortDescription: { type: String, default: '' },
-    
-    // Pricing
-    price: { type: Number, required: true, default: 0 }, // Regular Price
-    salePrice: { type: Number, default: 0 },             // Discount/Sale Price
-    
-    // Relationships
-    categories: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-      },
-    ],
-    tags: [{ type: String }],
-    
-    // Inventory
-    countInStock: { type: Number, required: true, default: 0 },
-    
-    // Specs
-    weight: { type: Number, default: 0 },
-    dimensions: {
-      length: { type: Number, default: 0 },
-      width: { type: Number, default: 0 },
-      height: { type: Number, default: 0 }
-    },
-    
-    // Attributes (e.g., Color, Weight options)
-    attributes: [
-      {
-        name: { type: String },
-        values: [{ type: String }]
-      }
-    ],
-
-    // Media
+    price: { type: Number, required: true, default: 0 },
+    sale_price: { type: Number, default: 0 },
     images: [{ type: String, required: true }],
+    categories: [{ type: String }],
+    tags: [{ type: String }],
+    short_description_html: { type: String, default: '' },
+    long_description_html: { type: String, default: '' },
     
-    // Preserved from your old model
-    headerSection: { 
-      type: String, 
-      enum: ['Category', 'Stone', 'Home Decor'],
-      default: 'Category'
-    },
-    stoneType: { type: String, default: 'Unknown' },
-    metaTitle: { type: String },
-    metaDescription: { type: String },
-    
-    // Reviews
-    reviews: [reviewSchema],
-    rating: { type: Number, required: true, default: 0 },
-    numReviews: { type: Number, required: true, default: 0 },
+    // Internal system fields (allowed for DB management)
+    countInStock: { type: Number, default: 100 },
+    isFeatured: { type: Boolean, default: false },
+    headerSection: [{ type: String, default: 'Category' }],
+    stoneType: [{ type: String }]
   },
   { timestamps: true }
 );

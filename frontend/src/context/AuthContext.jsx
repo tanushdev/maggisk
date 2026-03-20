@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { login as apiLogin, register as apiRegister } from '../services/api';
+import { 
+  login as apiLogin, 
+  register as apiRegister,
+  forgotPassword as apiForgotPassword,
+  resetPassword as apiResetPassword
+} from '../services/api';
 
 const AuthContext = createContext();
 
@@ -27,8 +32,18 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('userInfo', JSON.stringify(data));
   };
 
+  const forgotPassword = async (email) => {
+    return await apiForgotPassword({ email });
+  };
+
+  const resetPassword = async (token, password) => {
+    const { data } = await apiResetPassword(token, { password });
+    setUserInfo(data);
+    localStorage.setItem('userInfo', JSON.stringify(data));
+  };
+
   return (
-    <AuthContext.Provider value={{ userInfo, login, logout, register }}>
+    <AuthContext.Provider value={{ userInfo, login, logout, register, forgotPassword, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );

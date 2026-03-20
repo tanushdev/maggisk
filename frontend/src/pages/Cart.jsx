@@ -1,124 +1,230 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
 import { useCart } from '../context/CartContext';
-import { Trash2, ArrowRight, ShoppingBag, ChevronRight, ShieldCheck } from 'lucide-react';
-
+import { Trash2, ArrowRight, ShoppingBag, ChevronRight, ShieldCheck, X, Minus, Plus, PenLine, Truck, Ticket } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cartItems, removeFromCart } = useCart();
-
+  const { cartItems, removeFromCart, updateCartQty, appliedCoupon, setAppliedCoupon } = useCart();
+  const [couponCode, setCouponCode] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [isApplying, setIsApplying] = useState(false);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0);
-  const freeShippingThreshold = 2500;
-  const shippingLeft = freeShippingThreshold - subtotal;
+  const shipping = subtotal >= 2500 ? 0 : 100;
+  
+  const discount = appliedCoupon 
+  ? (appliedCoupon.discountType === 'percentage' 
+      ? (subtotal * appliedCoupon.discount) / 100 
+      : appliedCoupon.discount)
+  : 0;
+
+  const total = subtotal + shipping - discount;
+
+  const handleQtyChange = (id, currentQty, delta) => {
+    updateCartQty(id, currentQty + delta);
+  };
+
+  const handleApplyCoupon = async () => {
+    try {
+      if (!couponCode) return setCouponError('Enter code');
+      setIsApplying(true);
+      setCouponError('');
+      const { data } = await import('../services/api').then(api => api.validateCoupon({ code: couponCode.toUpperCase().trim() }));
+      setAppliedCoupon(data);
+      setCouponCode('');
+    } catch (err) {
+      setCouponError(err.response?.data?.message || 'Invalid Coupon');
+    } finally {
+      setIsApplying(false);
+    }
+  };
 
   return (
-    <div className="bg-theme-cream min-h-screen py-20">
-      <div className="container mx-auto px-4">
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-6xl font-serif text-gray-900 mb-4 italic">Sacred Bag</h1>
-          <div className="flex items-center gap-2 text-[10px] tracking-[0.2em] text-gray-400 uppercase font-bold">
-            <Link to="/" className="hover:text-theme-rust">Boutique</Link>
-            <ChevronRight size={10} />
-            <span className="text-gray-900">Your Selection</span>
-          </div>
+    <div className="bg-[#ffffff] min-h-screen pt-32 pb-20 font-arial">
+      <div className="container mx-auto px-4 max-w-2xl">
+        
+        {/* Header like the image */}
+        <div className="flex justify-between items-center mb-10 pb-6 border-b border-gray-100">
+           <h1 className="text-3xl font-serif text-gray-900 italic">My Cart</h1>
+           <button onClick={() => navigate(-1)} className="w-10 h-10 border border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-900 hover:border-gray-900 transition-all">
+             <X size={20} />
+           </button>
         </div>
 
+        <AnimatePresence>
         {cartItems.length === 0 ? (
-          <div className="bg-white p-20 text-center rounded-sm shadow-sm max-w-2xl mx-auto border border-gray-50">
-            <div className="flex justify-center mb-8">
-               <ShoppingBag size={64} className="text-gray-200" />
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="py-20 text-center"
+          >
+            <div className="w-20 h-20 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center mx-auto mb-6">
+               <ShoppingBag size={32} />
             </div>
-            <p className="text-xl md:text-2xl font-serif text-gray-900 mb-8 italic">Your bag is currently empty of earth's treasures.</p>
-            <Link to="/" className="inline-block bg-gray-900 text-white px-12 py-4 uppercase tracking-widest text-xs font-bold hover:bg-theme-rust transition-all">
-              Start Exploring
+            <p className="text-xl font-bold text-gray-900 mb-8">Your cart is empty</p>
+            <Link to="/" className="inline-block bg-gray-900 text-white px-10 py-4 uppercase tracking-widest text-[10px] font-bold hover:bg-theme-rust transition-all">
+              Start Shopping
             </Link>
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+          <div className="space-y-8">
             {/* Items List */}
-            <div className="lg:col-span-2 space-y-6">
-              {subtotal < freeShippingThreshold && (
-                <div className="bg-theme-rust/5 border border-theme-rust/20 p-4 rounded-sm mb-8 text-center">
-                  <p className="text-[10px] uppercase tracking-widest text-theme-rust font-bold">
-                    Add ₹{shippingLeft.toFixed(0)} more to your bag for free insured shipping.
-                  </p>
-                </div>
-              )}
-
+            <div className="space-y-8">
               {cartItems.map((item) => (
-                <div key={item.product} className="bg-white p-6 md:p-8 flex flex-col md:flex-row gap-8 items-center border border-gray-50 transition-all hover:shadow-md rounded-sm">
-                  <div className="w-32 h-40 bg-gray-50 overflow-hidden flex-shrink-0">
-                    <img src={item.image} alt={item.name} loading="lazy" className="w-full h-full object-cover" />
+                <motion.div 
+                  key={item.product}
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex gap-6 items-start pb-8 border-b border-gray-50 relative group"
+                >
+                  {/* Thumbnail */}
+                  <div className="w-20 h-20 bg-gray-50 rounded-sm overflow-hidden flex-shrink-0 border border-gray-100">
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   </div>
-                  <div className="flex-1 text-center md:text-left">
-                    <span className="text-[10px] tracking-[0.3em] uppercase text-theme-rust font-bold mb-2 block">{item.category}</span>
-                    <h3 className="text-xl font-serif text-gray-900 mb-4 italic leading-tight">
-                      <Link to={`/product/${item.slug || ''}`}>{item.name}</Link>
-                    </h3>
-                    <div className="flex items-center justify-center md:justify-start gap-4 text-gray-500 text-sm">
-                       <span>Qty: {item.qty}</span>
-                       <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                       <span className="font-sans font-medium text-gray-900">₹{item.price}</span>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-4">
+                       <h3 className="text-sm font-bold text-gray-800 leading-snug pr-6">{item.name}</h3>
+                       <button 
+                         onClick={() => removeFromCart(item.product)}
+                         className="text-gray-400 hover:text-gray-900 transition-colors"
+                       >
+                         <X size={14} />
+                       </button>
+                    </div>
+                    
+                    <p className="text-sm font-bold text-gray-500 mt-1">₹{item.price.toFixed(2)}</p>
+
+                    {/* Quantity Selector like image */}
+                    <div className="mt-4 inline-flex items-center border border-gray-200 rounded-sm">
+                       <button 
+                         onClick={() => handleQtyChange(item.product, item.qty, -1)}
+                         className="p-1.5 px-3 text-gray-400 hover:text-gray-900 transition-colors border-r border-gray-100"
+                       >
+                         <Minus size={12} />
+                       </button>
+                       <span className="px-4 text-xs font-bold text-gray-900">{item.qty}</span>
+                       <button 
+                         onClick={() => handleQtyChange(item.product, item.qty, 1)}
+                         className="p-1.5 px-3 text-gray-400 hover:text-gray-900 transition-colors border-l border-gray-100"
+                       >
+                         <Plus size={12} />
+                       </button>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center md:items-end gap-6 h-full justify-between">
-                    <button 
-                      onClick={() => removeFromCart(item.product)} 
-                      className="text-gray-400 hover:text-red-500 transition-colors p-2"
-                      title="Remove from bag"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                    <span className="font-sans font-bold text-lg">₹{(item.qty * item.price).toFixed(0)}</span>
-                  </div>
-                </div>
+                </motion.div>
               ))}
             </div>
 
-            {/* Summary */}
-            <div className="space-y-8">
-              <div className="bg-white p-10 border border-gray-50 shadow-sm rounded-sm">
-                <h3 className="text-xs uppercase tracking-[0.3em] font-bold text-gray-900 mb-10 pb-4 border-b border-gray-50">Order Summary</h3>
-                <div className="space-y-4 mb-10">
-                  <div className="flex justify-between text-sm text-gray-500">
-                    <span className="font-light tracking-wide">Subtotal</span>
-                    <span className="font-sans text-gray-900">₹{subtotal.toFixed(0)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-500">
-                    <span className="font-light tracking-wide">Shipping</span>
-                    <span className="text-theme-rust text-[10px] tracking-widest font-bold uppercase">
-                      {subtotal >= freeShippingThreshold ? 'Free Insured' : 'Calculated at checkout'}
-                    </span>
-                  </div>
-                </div>
-                <div className="border-t border-gray-50 pt-8 flex justify-between items-center mb-10">
-                  <span className="text-xs uppercase tracking-widest font-bold text-gray-900">Estimated Total</span>
-                  <span className="text-2xl font-sans font-bold text-gray-900">₹{subtotal.toFixed(0)}</span>
-                </div>
-                <button 
-                  onClick={() => navigate('/checkout')}
-                  className="w-full bg-gray-900 text-white py-5 px-6 uppercase tracking-[0.2em] text-[10px] font-bold hover:bg-theme-rust transition-all flex items-center justify-center gap-3"
-                >
-                  Proceed to Secure Checkout <ArrowRight size={14} />
-                </button>
+            {/* Utility / Coupon Section */}
+            <div className="py-8 border-b border-gray-50">
+               <div className="flex flex-col items-center gap-6">
+                  {!appliedCoupon ? (
+                    <div className="w-full flex flex-col items-center gap-4">
+                       <button 
+                         onClick={() => setIsApplying(!isApplying)} 
+                         className={`flex items-center gap-2 transition-all ${isApplying ? 'text-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
+                       >
+                          <Ticket size={20} /> 
+                          <span className="text-[11px] font-bold uppercase tracking-widest">Have a Coupon?</span>
+                       </button>
 
+                       {isApplying && (
+                         <motion.div 
+                           initial={{ opacity: 0, y: -5 }} 
+                           animate={{ opacity: 1, y: 0 }}
+                           className="flex w-full max-w-sm gap-2 mt-2"
+                         >
+                            <input 
+                              type="text" 
+                              placeholder="ENTER CODE"
+                              value={couponCode}
+                              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                              className="flex-1 bg-white border border-gray-200 p-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-gray-900 transition-all rounded-sm"
+                            />
+                            <button 
+                              onClick={handleApplyCoupon}
+                              className="bg-gray-900 text-white px-8 text-[11px] font-bold uppercase tracking-widest hover:bg-theme-rust transition-all rounded-sm"
+                            >
+                              Apply
+                            </button>
+                         </motion.div>
+                       )}
+                       {couponError && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider">{couponError}</p>}
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-center w-full bg-gray-50 p-6 rounded-sm border border-dashed border-gray-200">
+                       <div className="flex items-center gap-4">
+                           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-green-600 shadow-sm">
+                              <Ticket size={18} />
+                           </div>
+                           <div>
+                             <p className="text-[11px] font-bold text-gray-900 uppercase tracking-[0.2em]">{appliedCoupon.code} ACTIVE</p>
+                             <p className="text-[10px] text-green-600 font-bold uppercase">Estimated Savings: ₹{discount.toFixed(0)}</p>
+                           </div>
+                       </div>
+                       <button 
+                         onClick={() => setAppliedCoupon(null)}
+                         className="text-[10px] font-bold text-gray-400 hover:text-rose-500 uppercase tracking-widest transition-colors border-b border-transparent hover:border-rose-100 pb-1"
+                       >
+                         Remove
+                       </button>
+                    </div>
+                  )}
+               </div>
+            </div>
+
+            {/* Totals */}
+            <div className="space-y-4 pt-4">
+              <div className="flex justify-between items-center">
+                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Subtotal</span>
+                 <span className="text-sm font-bold text-gray-900">₹{subtotal.toFixed(2)}</span>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Shipping</span>
+                 <span className="text-sm font-bold text-gray-900 uppercase">
+                    {shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`}
+                 </span>
               </div>
 
-              <div className="bg-white p-8 border border-gray-50 rounded-sm">
-                 <div className="flex items-center gap-4 text-gray-500">
-                    <ShieldCheck size={20} className="text-theme-rust" />
-                    <div>
-                       <h4 className="text-[10px] uppercase font-bold tracking-widest text-gray-900">Secure Payments</h4>
-                       <p className="text-[9px] uppercase tracking-tighter mt-1">SSL Encrypted Transaction</p>
-                    </div>
-                 </div>
+              {discount > 0 && (
+                <div className="flex justify-between items-center text-green-600">
+                   <span className="text-[11px] font-bold uppercase tracking-widest">Discount</span>
+                   <span className="text-sm font-bold">-₹{discount.toFixed(2)}</span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center pt-6 border-t border-gray-100">
+                 <span className="text-base font-bold text-gray-900 uppercase tracking-wider">Total</span>
+                 <span className="text-xl font-bold text-gray-900">₹{total.toFixed(2)}</span>
+              </div>
+
+              {/* Buttons from image */}
+              <div className="space-y-3 pt-6">
+                 <button 
+                   onClick={() => navigate('/checkout')}
+                   className="w-full bg-[#1c1c1c] text-white py-5 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-theme-rust transition-all"
+                 >
+                   Proceed to Checkout
+                 </button>
+                 <button 
+                   onClick={() => navigate('/')}
+                   className="w-full bg-white text-gray-900 border border-gray-900 py-5 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-gray-50 transition-all"
+                 >
+                   Continue Shopping
+                 </button>
               </div>
             </div>
           </div>
         )}
+        </AnimatePresence>
+
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ const PerfectionSection = () => {
         {/* Left Image Half */}
         <div className="w-full md:w-1/2 relative min-h-[400px]">
           <img
-            src="https://maggikstones.com/wp-content/uploads/2025/09/327654-1.webp"
+            src="/images/craftsmanship.webp"
             alt="Natural Stone Artifact"
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover"

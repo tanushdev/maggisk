@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 const ProductPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, openCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -30,7 +30,7 @@ const ProductPage = () => {
       try {
         const { data } = await fetchProductBySlug(slug);
         setProduct(data);
-        document.title = `${data.name} | MaggiK Stones`;
+        document.title = `${data.title} | MaggiK Stones`;
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
@@ -49,7 +49,7 @@ const ProductPage = () => {
 
   const handleBuyNow = () => {
     addToCart(product, quantity);
-    navigate('/cart');
+    openCart();
   };
 
 
@@ -112,7 +112,7 @@ const ProductPage = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.5 }}
                   src={product.images[activeImage]}
-                  alt={product.name}
+                  alt={product.title}
                   loading="lazy"
                   className="w-full h-full object-cover"
                 />
@@ -134,7 +134,7 @@ const ProductPage = () => {
                   onClick={() => setActiveImage(idx)}
                   className={`aspect-square overflow-hidden rounded-sm border-2 transition-all ${activeImage === idx ? 'border-theme-rust' : 'border-transparent opacity-60 hover:opacity-100'}`}
                 >
-                   <img src={img} alt={`${product.name} thumbnail ${idx}`} loading="lazy" className="w-full h-full object-cover" />
+                   <img src={img} alt={`${product.title} thumbnail ${idx}`} loading="lazy" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -144,31 +144,61 @@ const ProductPage = () => {
           <div className="flex flex-col lg:col-span-7">
             <div className="mb-10 pb-10 border-b border-gray-100">
               <div className="flex items-center gap-4 mb-4">
-                <span className="text-[10px] tracking-[0.3em] uppercase text-theme-rust font-bold">{product.category}</span>
+                <span className="text-[10px] tracking-[0.3em] uppercase text-theme-rust font-bold">
+                  {product.categories?.[0] || 'Collection'}
+                </span>
                 <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                <span className="text-[10px] tracking-[0.3em] uppercase text-gray-400 font-bold">{product.stoneType}</span>
+                <span className="text-[10px] tracking-[0.3em] uppercase text-gray-400 font-bold">{product.headerSection}</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-serif text-gray-900 mb-6 italic leading-tight">
-                {product.name}
+                {product.title}
               </h1>
               <div className="flex items-center gap-2 mb-6 text-theme-rust">
                 {[...Array(5)].map((_, i) => <Star key={i} size={14} fill={i < (product.rating || 0) ? "currentColor" : "none"} />)}
-                <span className="text-[10px] text-gray-400 uppercase tracking-widest ml-2">({product.numReviews} Verified Reviews)</span>
+                <span className="text-[10px] text-gray-400 uppercase tracking-widest ml-2">({product.numReviews || 0} Verified Reviews)</span>
               </div>
               <div className="flex items-baseline gap-4 mb-8">
-                <span className="text-3xl font-sans font-semibold text-gray-900">₹{product.price}</span>
-                {product.discountPrice > 0 && (
-                  <span className="text-xl text-gray-400 line-through font-light">₹{product.discountPrice + product.price}</span>
+                {product.sale_price > 0 && product.sale_price < product.price ? (
+                  <>
+                    <span className="text-3xl font-sans font-semibold text-gray-900">₹{product.sale_price}</span>
+                    <span className="text-xl text-gray-400 line-through font-light">₹{product.price}</span>
+                  </>
+                ) : (
+                  <span className="text-3xl font-sans font-semibold text-gray-900">₹{product.price}</span>
                 )}
+                
                 {product.countInStock > 0 ? (
-                  <span className="ml-auto text-[10px] tracking-widest text-green-600 font-bold uppercase py-1 px-3 bg-green-50 rounded-full">In Stock</span>
+                  <span className="ml-auto text-[10px] tracking-widest text-green-600 font-bold uppercase py-1 px-3 bg-green-50 rounded-full">
+                    {product.countInStock} In Stock
+                  </span>
                 ) : (
                   <span className="ml-auto text-[10px] tracking-widest text-red-600 font-bold uppercase py-1 px-3 bg-red-50 rounded-full">Mined Out</span>
                 )}
               </div>
-              <p className="text-gray-500 text-base leading-relaxed font-light tracking-wide">
-                {product.shortDescription || (product.description && product.description.length > 150 ? product.description.substring(0, 150) + '...' : product.description)}
-              </p>
+              <div 
+                className="text-gray-500 text-base leading-relaxed font-light tracking-wide html-content"
+                dangerouslySetInnerHTML={{ __html: product.short_description_html || (product.long_description_html && product.long_description_html.length > 150 ? product.long_description_html.substring(0, 150) + '...' : product.long_description_html) }}
+              />
+
+              {/* Top Metadata Section */}
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                {product.categories && product.categories.length > 0 && (
+                  <div className="meta-item !mb-2">
+                    <span className="meta-label !text-[11px] uppercase tracking-wider">Categories:</span>
+                    <span className="meta-values !text-[11px] uppercase tracking-wider">
+                      {product.categories.join(', ')}
+                    </span>
+                  </div>
+                )}
+                {product.tags && product.tags.length > 0 && (
+                  <div className="meta-item">
+                    <span className="meta-label !text-[11px] uppercase tracking-wider">Tags:</span>
+                    <span className="meta-values !text-[11px] uppercase tracking-wider">
+                      {product.tags.join(', ')}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-8 mb-12">
@@ -249,13 +279,12 @@ const ProductPage = () => {
             </button>
           </div>
 
-          <div className="max-w-5xl mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-4">
             {activeTab === 'description' ? (
               <div 
-                className="text-gray-500 text-sm md:text-[15px] leading-relaxed font-light whitespace-pre-line"
-              >
-                {product.description}
-              </div>
+                className="text-gray-500 leading-relaxed font-light html-content"
+                dangerouslySetInnerHTML={{ __html: product.long_description_html }}
+              />
             ) : (
               <div className="space-y-12">
                 {product.reviews.length === 0 && (

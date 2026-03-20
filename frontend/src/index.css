@@ -3,17 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --theme-rust-brown: #a66a4a;
-  --theme-header-bg: #FFF7E9;
+  --theme-rust: #a66a4a;
+  --theme-cream: #FFF7E9;
   --theme-logo-coral: #e27d60;
   --theme-text-dark: #222222;
   --theme-text-light: #666666;
   
+  --font-brand: 'Outfit', sans-serif;
   --font-serif: "Cormorant Garamond", serif;
-  --font-sans: "Inter", "Arial", sans-serif;
-  --font-arial: "Arial", sans-serif;
 }
-
 
 * {
   margin: 0;
@@ -22,22 +20,21 @@
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-brand);
   background-color: #ffffff;
   color: var(--theme-text-dark);
   line-height: 1.6;
+  font-weight: 600; /* All bold base weight */
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, .font-serif {
-  font-family: var(--font-serif);
-  font-weight: 400;
+  font-family: var(--font-arial);
+  font-weight: 700;
 }
 
 .luxury-title {
   font-family: var(--font-serif);
-  font-style: italic;
-  letter-spacing: 0.05em;
 }
 
 @keyframes fadeIn {
@@ -90,7 +87,89 @@ h1, h2, h3, h4, .font-serif {
   .animate-marquee {
     animation: marquee 30s linear infinite;
   }
+}
 
+/* Enhanced HTML Content Styles for dangerouslySetInnerHTML */
+.html-content {
+  color: #333333; 
+  font-size: 20px; /* Reduced slightly for perfect balance */
+  line-height: 1.6;
+  font-family: var(--font-brand);
+}
+
+.html-content h1,
+.html-content h2,
+.html-content h3,
+.html-content h4 {
+  font-family: var(--font-serif);
+  color: #111111;
+  font-weight: 500;
+  margin-top: 2rem; /* Reduced top gap */
+  margin-bottom: 1rem; /* Reduced bottom gap */
+  font-size: 3.5rem; /* Significantly larger heading */
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.html-content b, 
+.html-content strong {
+  font-weight: 700;
+  color: #000000;
+}
+
+.product-meta-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.meta-item {
+  font-size: 16px; /* Slightly bigger meta */
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  color: #222222;
+}
+
+.meta-label {
+  font-weight: 600;
+  color: #000000;
+  margin-right: 0.5rem;
+}
+
+.meta-values {
+  color: #777777;
+}
+
+.html-content p {
+  margin-bottom: 1.25rem; /* Reduced gap between paragraphs */
+}
+
+.html-content ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.html-content li {
+  position: relative;
+  padding-left: 1.2rem; /* Reduced gap between dot and text */
+  margin-bottom: 0.6rem; /* Tighter list spacing */
+  color: #444444;
+}
+
+.html-content li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #000000;
+  font-weight: bold;
+}
+
+.html-content br {
+  display: block;
+  content: "";
+  margin-top: 0.5rem;
 }
 
 @keyframes marquee {

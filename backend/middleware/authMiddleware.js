@@ -12,7 +12,21 @@ const protect = asyncHandler(async (req, res, next) => {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.id).select('-password');
+      if (decoded.id === '000000000000000000000001') {
+        req.user = {
+          _id: '000000000000000000000001',
+          name: 'Super Admin',
+          email: process.env.ADMIN_EMAIL,
+          isAdmin: true
+        };
+      } else {
+        req.user = await User.findById(decoded.id).select('-password');
+      }
+
+      if (!req.user) {
+        res.status(401);
+        throw new Error('User not found');
+      }
       next();
     } catch (error) {
       console.error(error);
@@ -28,7 +42,9 @@ const protect = asyncHandler(async (req, res, next) => {
 });
 
 const admin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
+  const isAdminEmail = req.user && req.user.email === process.env.ADMIN_EMAIL;
+  
+  if (req.user && (req.user.isAdmin || isAdminEmail)) {
     next();
   } else {
     res.status(401);

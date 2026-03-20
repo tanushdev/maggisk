@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchConfigs, saveConfig } from '../../services/api';
-import { ChevronRight, Save, Layout, CreditCard, Shield, Globe, Terminal } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Save, Shield, Globe, Terminal, Lock } from 'lucide-react';
 
 const PhonePeConfig = () => {
   const [configs, setConfigs] = useState({
@@ -20,9 +19,11 @@ const PhonePeConfig = () => {
         setLoading(true);
         const { data } = await fetchConfigs();
         const configMap = {};
-        data.forEach(c => {
-          configMap[c.key] = c.value;
-        });
+        if (Array.isArray(data)) {
+            data.forEach(c => {
+                configMap[c.key] = c.value;
+            });
+        }
         setConfigs(prev => ({ ...prev, ...configMap }));
       } catch (err) {
         console.error('Error fetching configs:', err);
@@ -41,132 +42,131 @@ const PhonePeConfig = () => {
         saveConfig({ key, value })
       );
       await Promise.all(promises);
-      alert('Celestial Settings Synchronized');
+      alert('Merchant configuration updated successfully');
     } catch (err) {
       console.error('Error saving configs:', err);
-      alert('Error updating settings');
+      alert('Failed to update configurations');
     } finally {
       setSaving(false);
     }
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-theme-cream">
-       <div className="w-10 h-10 border-4 border-theme-rust border-t-transparent rounded-full animate-spin"></div>
+    <div className="py-20 flex justify-center">
+       <div className="w-8 h-8 border-2 border-theme-rust border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 
   return (
-    <div className="bg-theme-cream min-h-screen py-20 font-sans">
+    <div className="space-y-8 font-bold" style={{ fontFamily: 'Outfit, sans-serif' }}>
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Merchant Configuration</h1>
+        <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider">Setup and manage your payment gateway credentials</p>
+      </div>
 
-      <div className="container mx-auto px-4 max-w-5xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 uppercase tracking-tighter">
-              PhonePe Integration
-            </h1>
-            <div className="flex items-center gap-2 text-[10px] tracking-[0.2em] text-gray-400 uppercase font-bold">
-              <Link to="/admin" className="hover:text-theme-rust">Sanctum</Link>
-              <ChevronRight size={10} />
-              <span className="text-gray-900">Oracle Config</span>
-            </div>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          {/* Identity Section */}
+          <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
+             <div className="flex items-center gap-2 mb-8 pb-4 border-b border-gray-50 uppercase text-[10px] font-bold text-gray-900 tracking-widest">
+                <Terminal size={18} className="text-gray-400" /> Merchant Identity
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 mb-2 block tracking-widest">Merchant ID</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="Enter Merchant ID"
+                    value={configs.phonepe_merchant_id} 
+                    onChange={(e) => setConfigs({...configs, phonepe_merchant_id: e.target.value})} 
+                    className="w-full bg-gray-50 border border-gray-200 p-4 text-sm font-bold rounded-lg focus:border-theme-rust outline-none transition-all" 
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 mb-2 block tracking-widest">Salt Index</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="Enter Salt Index"
+                    value={configs.phonepe_salt_index} 
+                    onChange={(e) => setConfigs({...configs, phonepe_salt_index: e.target.value})} 
+                    className="w-full bg-gray-50 border border-gray-200 p-4 text-sm font-bold rounded-lg focus:border-theme-rust outline-none transition-all" 
+                  />
+                </div>
+             </div>
+
+             <div className="mt-6">
+                <label className="text-[10px] uppercase font-bold text-gray-400 mb-2 block tracking-widest">Secret Salt Key</label>
+                <div className="relative">
+                    <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" />
+                    <input 
+                    type="password" 
+                    required
+                    placeholder="••••••••••••••••"
+                    value={configs.phonepe_salt_key} 
+                    onChange={(e) => setConfigs({...configs, phonepe_salt_key: e.target.value})} 
+                    className="w-full bg-gray-50 border border-gray-200 p-4 text-sm font-bold rounded-lg focus:border-theme-rust outline-none transition-all pr-12" 
+                    />
+                </div>
+             </div>
+          </div>
+
+          {/* Endpoints Section */}
+          <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
+             <div className="flex items-center gap-2 mb-8 pb-4 border-b border-gray-50 uppercase text-[10px] font-bold text-gray-900 tracking-widest">
+                <Globe size={18} className="text-gray-400" /> Service Routing
+             </div>
+
+             <div className="space-y-6">
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 mb-2 block tracking-widest">Gateway Base URL</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="https://api.phonepe.com/..."
+                    value={configs.phonepe_base_url} 
+                    onChange={(e) => setConfigs({...configs, phonepe_base_url: e.target.value})} 
+                    className="w-full bg-gray-50 border border-gray-200 p-4 text-sm font-bold rounded-lg focus:border-theme-rust outline-none transition-all" 
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-gray-400 mb-2 block tracking-widest">Post-Transaction Callback URL</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="https://maggikstones.com/api/payment/status"
+                    value={configs.phonepe_callback_url} 
+                    onChange={(e) => setConfigs({...configs, phonepe_callback_url: e.target.value})} 
+                    className="w-full bg-gray-50 border border-gray-200 p-4 text-sm font-bold rounded-lg focus:border-theme-rust outline-none transition-all" 
+                  />
+                  <p className="text-[9px] text-gray-400 mt-2 uppercase font-bold tracking-tight">Automated redirect destination after payment sequence</p>
+                </div>
+             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white p-8 md:p-12 rounded-sm border border-gray-50 shadow-sm relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-5">
-                  <CreditCard size={120} />
-               </div>
-               
-               <div className="flex items-center gap-3 mb-10 pb-4 border-b border-gray-50 text-xs font-bold text-gray-900 uppercase tracking-widest relative z-10">
-                  <Terminal size={20} className="text-theme-rust" /> Merchant Resonance
-               </div>
-
-               <div className="space-y-8 relative z-10">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                      <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-400 mb-3 block">Merchant ID</label>
-                      <input 
-                        type="text" 
-                        value={configs.phonepe_merchant_id} 
-                        onChange={(e) => setConfigs({...configs, phonepe_merchant_id: e.target.value})} 
-                        className="w-full bg-theme-cream border-none p-4 rounded-sm focus:ring-1 focus:ring-theme-rust outline-none transition-all text-sm font-bold" 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-400 mb-3 block">Salt Index</label>
-                      <input 
-                        type="text" 
-                        value={configs.phonepe_salt_index} 
-                        onChange={(e) => setConfigs({...configs, phonepe_salt_index: e.target.value})} 
-                        className="w-full bg-theme-cream border-none p-4 rounded-sm focus:ring-1 focus:ring-theme-rust outline-none transition-all text-sm font-bold" 
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-400 mb-3 block">Salt Key (Master Resonance)</label>
-                    <input 
-                      type="password" 
-                      value={configs.phonepe_salt_key} 
-                      onChange={(e) => setConfigs({...configs, phonepe_salt_key: e.target.value})} 
-                      className="w-full bg-theme-cream border-none p-4 rounded-sm focus:ring-1 focus:ring-theme-rust outline-none transition-all text-sm font-bold" 
-                    />
-                  </div>
-               </div>
-            </div>
-
-            <div className="bg-white p-8 md:p-12 rounded-sm border border-gray-50 shadow-sm">
-               <div className="flex items-center gap-3 mb-10 pb-4 border-b border-gray-50 text-xs font-bold text-gray-900 uppercase tracking-widest">
-                  <Globe size={20} className="text-theme-rust" /> Endpoint Alignment
-               </div>
-
-               <div className="space-y-8">
-                  <div>
-                    <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-400 mb-3 block">Base URL (Ethereal Link)</label>
-                    <input 
-                      type="text" 
-                      value={configs.phonepe_base_url} 
-                      onChange={(e) => setConfigs({...configs, phonepe_base_url: e.target.value})} 
-                      className="w-full bg-theme-cream border-none p-4 rounded-sm focus:ring-1 focus:ring-theme-rust outline-none transition-all text-sm font-medium" 
-                    />
-                    <p className="text-[9px] text-gray-400 mt-2 italic uppercase">Sandbox: https://api-preprod.phonepe.com/apis/pg-sandbox</p>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-400 mb-3 block">Callback URL (Echo Chamber)</label>
-                    <input 
-                      type="text" 
-                      value={configs.phonepe_callback_url} 
-                      onChange={(e) => setConfigs({...configs, phonepe_callback_url: e.target.value})} 
-                      className="w-full bg-theme-cream border-none p-4 rounded-sm focus:ring-1 focus:ring-theme-rust outline-none transition-all text-sm font-medium" 
-                    />
-                  </div>
-               </div>
-            </div>
+        {/* Info Sidebar */}
+        <div className="lg:col-span-1">
+          <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-sm sticky top-24">
+             <div className="flex items-center gap-2 mb-6 text-[10px] font-bold text-gray-900 uppercase tracking-widest">
+                <Shield size={18} className="text-green-600" /> System Integrity
+             </div>
+             <p className="text-[11px] text-gray-500 font-bold mb-8 uppercase leading-none tracking-tight">
+                Merchant keys are handled via background secure relay. Access is restricted to authorized administrative nodes.
+             </p>
+             <button 
+               type="submit" 
+               disabled={saving}
+               className="w-full bg-gray-900 text-white py-4 px-6 text-xs font-bold uppercase tracking-widest hover:bg-theme-rust transition-all flex items-center justify-center gap-3 rounded-lg disabled:bg-gray-100 shadow-sm"
+             >
+               {saving ? 'Syncing...' : <><Save size={18} /> Save Settings</>}
+             </button>
           </div>
-
-          <div className="space-y-8">
-            <div className="bg-white p-8 rounded-sm shadow-sm border border-gray-50 border-t-4 border-t-theme-rust">
-               <div className="flex items-center gap-3 mb-8 text-xs font-bold text-gray-900 uppercase tracking-widest">
-                  <Shield size={18} className="text-theme-rust" /> Security Ward
-               </div>
-               <p className="text-[10px] text-gray-500 leading-relaxed uppercase tracking-tighter mb-8">
-                  Ensure all keys are transferred directly from your PhonePe Dashboard. Any minor fracture in the resonance will lead to failed manifestations.
-               </p>
-               <button 
-                 type="submit" 
-                 disabled={saving}
-                 className="w-full bg-gray-900 text-white py-5 px-6 uppercase tracking-[0.3em] text-[10px] font-bold hover:bg-theme-rust transition-all flex items-center justify-center gap-3 shadow-xl shadow-gray-200 disabled:bg-gray-400"
-               >
-                 {saving ? 'Synchronizing...' : <><Save size={16} /> Seal Config</>}
-               </button>
-            </div>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };
